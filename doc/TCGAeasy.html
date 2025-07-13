@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Easy Access and Analysis Tools for TCGA Data</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+width: 0.8em;
+margin: 0 0.8em 0.2em -1em;  vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+
+
+
+
+<style type="text/css">body {background-color: #fff;margin: 1em auto;max-width: 700px;overflow: visible;padding-left: 2em;padding-right: 2em;font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;font-size: 14px;line-height: 1.35;}table {margin: 1em auto;border-width: 1px;border-color: #DDDDDD;border-style: outset;border-collapse: collapse;}table th {border-width: 2px;padding: 5px;border-style: inset;}table td {border-width: 1px;border-style: inset;line-height: 18px;padding: 5px 5px;}table, table th, table td {border-left-style: none;border-right-style: none;}table thead, table tr.even {background-color: #f7f7f7;}p {margin: 0.5em 0;}blockquote {background-color: #f6f6f6;padding: 0.25em 0.75em;}hr {border-style: solid;border: none;border-top: 1px solid #777;margin: 28px 0;}dl {margin-left: 0;}dl dd {margin-bottom: 13px;margin-left: 13px;}dl dt {font-weight: bold;}ul {margin-top: 0;}ul li {list-style: circle outside;}ul ul {margin-bottom: 0;}pre, code {background-color: #f7f7f7;border-radius: 3px;color: #333;white-space: pre-wrap; }pre {border-radius: 3px;margin: 5px 0px 10px 0px;padding: 10px;}pre:not([class]) {background-color: #f7f7f7;}code {font-family: Consolas, Monaco, 'Courier New', monospace;font-size: 85%;}p > code, li > code {padding: 2px 0px;}div.figure {text-align: center;}img {background-color: #FFFFFF;padding: 2px;border: 1px solid #DDDDDD;border-radius: 3px;border: 1px solid #CCCCCC;margin: 0 5px;}h1 {margin-top: 0;font-size: 35px;line-height: 40px;}h2 {border-bottom: 4px solid #f7f7f7;padding-top: 10px;padding-bottom: 2px;font-size: 145%;}h3 {border-bottom: 2px solid #f7f7f7;padding-top: 10px;font-size: 120%;}h4 {border-bottom: 1px solid #f7f7f7;margin-left: 8px;font-size: 105%;}h5, h6 {border-bottom: 1px solid #ccc;font-size: 105%;}a {color: #0033dd;text-decoration: none;}a:hover {color: #6666ff; }a:visited {color: #800080; }a:visited:hover {color: #BB00BB; }a[href^="http:"] {text-decoration: underline; }a[href^="https:"] {text-decoration: underline; }</style>
+</head>
+
+<body>
+
+
+<header id="title-block-header">
+<h1 class="title">Easy Access and Analysis Tools for TCGA Data</h1>
+
+</header>
+
+
+<h2 id="tcga-gbm-临床文件">TCGA-GBM 临床文件</h2>
+<p>599个 TCGA-GBM 临床文件</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(TCGAeasy)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: package &#39;stringr&#39; was built under R version 4.4.3</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>xml_gzfile <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata/TCGA-GBM.zip&quot;</span>,<span class="at">package =</span> <span class="st">&quot;TCGAeasy&quot;</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># file.copy(from = xml_gzfile, to = &quot;./&quot;,overwrite = T)</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># unzip(zipfile = &quot;./TCGA-GBM.zip&quot;, exdir = &quot;./&quot;)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">unzip</span>(<span class="at">zipfile =</span> xml_gzfile, <span class="at">exdir =</span> <span class="st">&quot;./&quot;</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>xml_files <span class="ot">&lt;-</span> <span class="fu">list.files</span>(<span class="st">&quot;./TCGA-GBM/&quot;</span>, <span class="at">pattern =</span> <span class="st">&quot;.xml$&quot;</span>, <span class="at">recursive =</span> T, <span class="at">full.names =</span> T)</span></code></pre></div>
+</div>
+<h2 id="读入临床文件">读入临床文件</h2>
+<ul>
+<li><p>读入的内容与 <code>TCGAbiolinks</code> 包解析结果不完全一致。</p></li>
+<li><p>读入一个xml文件后，生成的list包含6个元素：<code>admin, patient, drugs, radiations, follow_ups, nte</code></p></li>
+<li><p>在读入 <code>patient</code> 部分后，对其它非空元素在第一列添加 <code>bcr_patient_barcode</code> 列。</p></li>
+<li><p>部分病例不包含所有元素信息，对于缺乏该项内容的元素会被标记为NA。</p></li>
+</ul>
+<h3 id="读入单个patient信息">读入单个patient信息</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>test1 <span class="ot">&lt;-</span> <span class="fu">tcga_xml_parse</span>(<span class="at">xfile =</span> xml_files[<span class="fu">which</span>(<span class="fu">str_detect</span>(xml_files, <span class="at">pattern =</span> <span class="st">&quot;TCGA-12-3644&quot;</span>))] ) <span class="co"># 595 # 子节点含有多个重复</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(test1)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $admin</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 12</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   bcr_patient_barcode bcr       file_uuid batch_number project_code disease_code</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;               &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;        &lt;chr&gt;        &lt;chr&gt;       </span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 TCGA-12-3644        Nationwi… C9F2FFB2… 38.74.0      TCGA         GBM         </span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # ℹ 6 more variables: day_of_dcc_upload &lt;int&gt;, month_of_dcc_upload &lt;int&gt;,</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   year_of_dcc_upload &lt;int&gt;, patient_withdrawal &lt;chr&gt;, program &lt;chr&gt;,</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   dbgap_registration_code &lt;chr&gt;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $patient</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 39</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   bcr_patient_barcode additional_studies tumor_tissue_site histological_type    </span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;               &lt;chr&gt;              &lt;chr&gt;             &lt;chr&gt;                </span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 TCGA-12-3644        &lt;NA&gt;               Brain             Untreated primary (d…</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # ℹ 35 more variables: prior_glioma &lt;chr&gt;, gender &lt;chr&gt;, vital_status &lt;chr&gt;,</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   days_to_birth &lt;dbl&gt;, days_to_death &lt;dbl&gt;, days_to_last_followup &lt;dbl&gt;,</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   race_list &lt;chr&gt;, tissue_source_site &lt;chr&gt;, patient_id &lt;chr&gt;,</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   bcr_patient_uuid &lt;chr&gt;, informed_consent_verified &lt;chr&gt;,</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   icd_o_3_site &lt;chr&gt;, icd_o_3_histology &lt;chr&gt;, icd_10 &lt;chr&gt;,</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   tissue_prospective_collection_indicator &lt;chr&gt;,</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   tissue_retrospective_collection_indicator &lt;chr&gt;, …</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $drugs</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 28 × 23</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    bcr_patient_barcode tx_on_clinical_trial regimen_number bcr_drug_barcode   </span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    &lt;chr&gt;               &lt;chr&gt;                &lt;chr&gt;          &lt;chr&gt;              </span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  1 TCGA-12-3644        &lt;NA&gt;                 &lt;NA&gt;           TCGA-12-3644-D23782</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  2 TCGA-12-3644        &lt;NA&gt;                 &lt;NA&gt;           TCGA-12-3644-D23800</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  3 TCGA-12-3644        &lt;NA&gt;                 &lt;NA&gt;           TCGA-12-3644-D23805</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  4 TCGA-12-3644        &lt;NA&gt;                 &lt;NA&gt;           TCGA-12-3644-D23787</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  5 TCGA-12-3644        &lt;NA&gt;                 &lt;NA&gt;           TCGA-12-3644-D23804</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  6 TCGA-12-3644        &lt;NA&gt;                 &lt;NA&gt;           TCGA-12-3644-D23789</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  7 TCGA-12-3644        &lt;NA&gt;                 &lt;NA&gt;           TCGA-12-3644-D23798</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  8 TCGA-12-3644        &lt;NA&gt;                 &lt;NA&gt;           TCGA-12-3644-D23795</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  9 TCGA-12-3644        &lt;NA&gt;                 &lt;NA&gt;           TCGA-12-3644-D23783</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10 TCGA-12-3644        &lt;NA&gt;                 &lt;NA&gt;           TCGA-12-3644-D23788</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # ℹ 18 more rows</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # ℹ 19 more variables: bcr_drug_uuid &lt;chr&gt;, total_dose &lt;dbl&gt;,</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   total_dose_units &lt;chr&gt;, prescribed_dose &lt;dbl&gt;, prescribed_dose_units &lt;chr&gt;,</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   number_cycles &lt;dbl&gt;, days_to_drug_therapy_start &lt;dbl&gt;,</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   days_to_drug_therapy_end &lt;dbl&gt;, therapy_types &lt;chr&gt;, drug_name &lt;chr&gt;,</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   clinical_trail_drug_classification &lt;chr&gt;, regimen_indication &lt;chr&gt;,</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   regimen_indication_notes &lt;chr&gt;, route_of_administrations &lt;chr&gt;, …</span></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $radiations</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 19</span></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   bcr_patient_barcode bcr_radiation_barcode bcr_radiation_uuid                  </span></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;               &lt;chr&gt;                 &lt;chr&gt;                               </span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 TCGA-12-3644        TCGA-12-3644-R23810   4e355dae-9aba-412e-a23e-1945ad09b318</span></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 TCGA-12-3644        TCGA-12-3644-R23809   97c0cf92-8893-4795-9ef5-51bcaeb39efa</span></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # ℹ 16 more variables: days_to_radiation_therapy_start &lt;chr&gt;,</span></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   days_to_radiation_therapy_end &lt;dbl&gt;, radiation_type &lt;chr&gt;,</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   radiation_type_notes &lt;chr&gt;, radiation_dosage &lt;dbl&gt;, units &lt;chr&gt;,</span></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   numfractions &lt;dbl&gt;, anatomic_treatment_site &lt;chr&gt;,</span></span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   regimen_indication &lt;chr&gt;, regimen_indication_notes &lt;chr&gt;,</span></span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   radiation_treatment_ongoing &lt;chr&gt;, course_number &lt;chr&gt;,</span></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   measure_of_response &lt;chr&gt;, day_of_form_completion &lt;dbl&gt;, …</span></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $follow_ups</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 19</span></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   bcr_patient_barcode bcr_followup_barcode bcr_followup_uuid      lost_follow_up</span></span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;               &lt;chr&gt;                &lt;chr&gt;                  &lt;chr&gt;         </span></span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 TCGA-12-3644        TCGA-12-3644-F23780  b05e5d91-8af0-4e8b-91… &lt;NA&gt;          </span></span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # ℹ 15 more variables: radiation_therapy &lt;chr&gt;, postoperative_rx_tx &lt;chr&gt;,</span></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   primary_therapy_outcome_success &lt;chr&gt;, followup_treatment_success &lt;chr&gt;,</span></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   vital_status &lt;chr&gt;, days_to_last_followup &lt;dbl&gt;, days_to_death &lt;dbl&gt;,</span></span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   person_neoplasm_cancer_status &lt;chr&gt;,</span></span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   followup_case_report_form_submission_reason &lt;chr&gt;,</span></span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   karnofsky_performance_score &lt;dbl&gt;, eastern_cancer_oncology_group &lt;dbl&gt;,</span></span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   performance_status_scale_timing &lt;chr&gt;, day_of_form_completion &lt;dbl&gt;, …</span></span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $nte</span></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 7</span></span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   bcr_patient_barcode days_to_new_tumor_event_after_ini…¹ new_neoplasm_event_t…²</span></span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;                                             &lt;dbl&gt; &lt;chr&gt;                 </span></span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 TCGA-12-3644                                       1142 Progression of Disease</span></span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 TCGA-12-3644                                         NA Locoregional Disease  </span></span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # ℹ abbreviated names: ¹​days_to_new_tumor_event_after_initial_treatment,</span></span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   ²​new_neoplasm_event_type</span></span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # ℹ 4 more variables: new_tumor_event_additional_surgery_procedure &lt;chr&gt;,</span></span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   days_to_new_tumor_event_additional_surgery_procedure &lt;dbl&gt;,</span></span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   additional_radiation_therapy &lt;chr&gt;, additional_pharmaceutical_therapy &lt;chr&gt;</span></span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>test2 <span class="ot">&lt;-</span> <span class="fu">tcga_xml_parse</span>(<span class="at">xfile =</span> xml_files[<span class="fu">which</span>(<span class="fu">str_detect</span>(xml_files, <span class="at">pattern =</span> <span class="st">&quot;TCGA-14-1829&quot;</span>))] ) <span class="co"># 无nte </span></span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>test3 <span class="ot">&lt;-</span> <span class="fu">tcga_xml_parse</span>(<span class="at">xfile =</span> xml_files[<span class="fu">which</span>(<span class="fu">str_detect</span>(xml_files, <span class="at">pattern =</span> <span class="st">&quot;TCGA-76-6664&quot;</span>))] ) <span class="co"># 525 # 无 nte 和 radiations</span></span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>test4 <span class="ot">&lt;-</span> <span class="fu">tcga_xml_parse</span>(<span class="at">xfile =</span> xml_files[<span class="fu">which</span>(<span class="fu">str_detect</span>(xml_files, <span class="at">pattern =</span> <span class="st">&quot;TCGA-02-0039&quot;</span>))] ) <span class="co"># 无 drugs 和 radiations</span></span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>test5 <span class="ot">&lt;-</span> <span class="fu">tcga_xml_parse</span>(<span class="at">xfile =</span> xml_files[<span class="fu">which</span>(<span class="fu">str_detect</span>(xml_files, <span class="at">pattern =</span> <span class="st">&quot;TCGA-06-0240&quot;</span>))] ) <span class="co"># 无follow_ups 和 nte</span></span></code></pre></div>
+</div>
+<h3 id="读入所有文件">读入所有文件</h3>
+<ul>
+<li>读入信息时或有无法转换数据格式的内容，因而提示</li>
+</ul>
+<pre><code>Warning in tcga_xml_parse(xfile = xfiles[x]) :
+  NAs introduced by coercion</code></pre>
+<p>读入所有文件为list列表，并将其中部分元素合并为一个tibble格式。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>all_list <span class="ot">&lt;-</span> <span class="fu">tcga_xml2list</span>(<span class="at">xfiles =</span> xml_files)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in tcga_xml_parse(xfile = xfiles[x]): NAs introduced by coercion</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in tcga_xml_parse(xfile = xfiles[x]): NAs introduced by coercion</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in tcga_xml_parse(xfile = xfiles[x]): NAs introduced by coercion</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(all_list)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 599</span></span></code></pre></div>
+</div>
+<p>admin 文件元数据（管理信息）</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 将所有文件的list中的某个元素合并为df</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>df_admin <span class="ot">&lt;-</span> <span class="fu">tcga_list2df</span>(<span class="at">lists =</span> all_list, <span class="at">element =</span> <span class="st">&quot;admin&quot;</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 读取单个xml文件，将其中某个元素合并为df</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>df_admin2 <span class="ot">&lt;-</span> <span class="fu">tcga_xml2df</span>(<span class="at">xfiles =</span> xml_files, <span class="at">element =</span> <span class="st">&quot;admin&quot;</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in tcga_xml_parse(xfile = xfiles[x]): NAs introduced by coercion</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in tcga_xml_parse(xfile = xfiles[x]): NAs introduced by coercion</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in tcga_xml_parse(xfile = xfiles[x]): NAs introduced by coercion</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(df_admin)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 599  12</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(df_admin)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;bcr_patient_barcode&quot;     &quot;bcr&quot;                    </span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [3] &quot;file_uuid&quot;               &quot;batch_number&quot;           </span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [5] &quot;project_code&quot;            &quot;disease_code&quot;           </span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;day_of_dcc_upload&quot;       &quot;month_of_dcc_upload&quot;    </span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [9] &quot;year_of_dcc_upload&quot;      &quot;patient_withdrawal&quot;     </span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [11] &quot;program&quot;                 &quot;dbgap_registration_code&quot;</span></span></code></pre></div>
+</div>
+<p>patient 病人基本信息与病理资料</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>df_patient <span class="ot">&lt;-</span> <span class="fu">tcga_list2df</span>(<span class="at">lists =</span> all_list, <span class="at">element =</span> <span class="st">&quot;patient&quot;</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>df_patient2 <span class="ot">&lt;-</span> <span class="fu">tcga_xml2df</span>(<span class="at">xfiles =</span> xml_files, <span class="at">element =</span> <span class="st">&quot;patient&quot;</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in tcga_xml_parse(xfile = xfiles[x]): NAs introduced by coercion</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in tcga_xml_parse(xfile = xfiles[x]): NAs introduced by coercion</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in tcga_xml_parse(xfile = xfiles[x]): NAs introduced by coercion</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(df_patient)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 599  39</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(df_patient)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;bcr_patient_barcode&quot;                      </span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [2] &quot;additional_studies&quot;                       </span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [3] &quot;tumor_tissue_site&quot;                        </span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [4] &quot;histological_type&quot;                        </span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [5] &quot;prior_glioma&quot;                             </span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [6] &quot;gender&quot;                                   </span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;vital_status&quot;                             </span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [8] &quot;days_to_birth&quot;                            </span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [9] &quot;days_to_death&quot;                            </span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [10] &quot;days_to_last_followup&quot;                    </span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [11] &quot;race_list&quot;                                </span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [12] &quot;tissue_source_site&quot;                       </span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [13] &quot;patient_id&quot;                               </span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [14] &quot;bcr_patient_uuid&quot;                         </span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [15] &quot;informed_consent_verified&quot;                </span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [16] &quot;icd_o_3_site&quot;                             </span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [17] &quot;icd_o_3_histology&quot;                        </span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [18] &quot;icd_10&quot;                                   </span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [19] &quot;tissue_prospective_collection_indicator&quot;  </span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [20] &quot;tissue_retrospective_collection_indicator&quot;</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [21] &quot;days_to_initial_pathologic_diagnosis&quot;     </span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [22] &quot;age_at_initial_pathologic_diagnosis&quot;      </span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [23] &quot;year_of_initial_pathologic_diagnosis&quot;     </span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [24] &quot;person_neoplasm_cancer_status&quot;            </span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [25] &quot;day_of_form_completion&quot;                   </span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [26] &quot;month_of_form_completion&quot;                 </span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [27] &quot;year_of_form_completion&quot;                  </span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [28] &quot;ethnicity&quot;                                </span></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [29] &quot;other_dx&quot;                                 </span></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [30] &quot;history_of_neoadjuvant_treatment&quot;         </span></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [31] &quot;initial_pathologic_diagnosis_method&quot;      </span></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [32] &quot;init_pathology_dx_method_other&quot;           </span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [33] &quot;anatomic_neoplasm_subdivision&quot;            </span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [34] &quot;radiation_therapy&quot;                        </span></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [35] &quot;postoperative_rx_tx&quot;                      </span></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [36] &quot;primary_therapy_outcome_success&quot;          </span></span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [37] &quot;karnofsky_performance_score&quot;              </span></span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [38] &quot;eastern_cancer_oncology_group&quot;            </span></span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [39] &quot;performance_status_scale_timing&quot;</span></span></code></pre></div>
+</div>
+<p>drugs 药物治疗信息</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>df_drugs <span class="ot">&lt;-</span> <span class="fu">tcga_list2df</span>(<span class="at">lists =</span> all_list, <span class="at">element =</span> <span class="st">&quot;drugs&quot;</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>df_drugs2 <span class="ot">&lt;-</span> <span class="fu">tcga_xml2df</span>(<span class="at">xfiles =</span> xml_files, <span class="at">element =</span> <span class="st">&quot;drugs&quot;</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in tcga_xml_parse(xfile = xfiles[x]): NAs introduced by coercion</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in tcga_xml_parse(xfile = xfiles[x]): NAs introduced by coercion</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in tcga_xml_parse(xfile = xfiles[x]): NAs introduced by coercion</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(df_drugs)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 1505   23</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(df_drugs)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;bcr_patient_barcode&quot;                &quot;tx_on_clinical_trial&quot;              </span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [3] &quot;regimen_number&quot;                     &quot;bcr_drug_barcode&quot;                  </span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [5] &quot;bcr_drug_uuid&quot;                      &quot;total_dose&quot;                        </span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;total_dose_units&quot;                   &quot;prescribed_dose&quot;                   </span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [9] &quot;prescribed_dose_units&quot;              &quot;number_cycles&quot;                     </span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [11] &quot;days_to_drug_therapy_start&quot;         &quot;days_to_drug_therapy_end&quot;          </span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [13] &quot;therapy_types&quot;                      &quot;drug_name&quot;                         </span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [15] &quot;clinical_trail_drug_classification&quot; &quot;regimen_indication&quot;                </span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [17] &quot;regimen_indication_notes&quot;           &quot;route_of_administrations&quot;          </span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [19] &quot;therapy_ongoing&quot;                    &quot;measure_of_response&quot;               </span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [21] &quot;day_of_form_completion&quot;             &quot;month_of_form_completion&quot;          </span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [23] &quot;year_of_form_completion&quot;</span></span></code></pre></div>
+</div>
+<p>radiations 放疗信息</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>df_radiations <span class="ot">&lt;-</span> <span class="fu">tcga_list2df</span>(<span class="at">lists =</span> all_list, <span class="at">element =</span> <span class="st">&quot;radiations&quot;</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>df_radiations2 <span class="ot">&lt;-</span> <span class="fu">tcga_xml2df</span>(<span class="at">xfiles =</span> xml_files, <span class="at">element =</span> <span class="st">&quot;radiations&quot;</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in tcga_xml_parse(xfile = xfiles[x]): NAs introduced by coercion</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in tcga_xml_parse(xfile = xfiles[x]): NAs introduced by coercion</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in tcga_xml_parse(xfile = xfiles[x]): NAs introduced by coercion</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(df_radiations)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 550  19</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(df_radiations)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;bcr_patient_barcode&quot;             &quot;bcr_radiation_barcode&quot;          </span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [3] &quot;bcr_radiation_uuid&quot;              &quot;days_to_radiation_therapy_start&quot;</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [5] &quot;days_to_radiation_therapy_end&quot;   &quot;radiation_type&quot;                 </span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;radiation_type_notes&quot;            &quot;radiation_dosage&quot;               </span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [9] &quot;units&quot;                           &quot;numfractions&quot;                   </span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [11] &quot;anatomic_treatment_site&quot;         &quot;regimen_indication&quot;             </span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [13] &quot;regimen_indication_notes&quot;        &quot;radiation_treatment_ongoing&quot;    </span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [15] &quot;course_number&quot;                   &quot;measure_of_response&quot;            </span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [17] &quot;day_of_form_completion&quot;          &quot;month_of_form_completion&quot;       </span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [19] &quot;year_of_form_completion&quot;</span></span></code></pre></div>
+</div>
+<p>follow_ups 随访信息</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>df_follow_ups <span class="ot">&lt;-</span> <span class="fu">tcga_list2df</span>(<span class="at">lists =</span> all_list, <span class="at">element =</span> <span class="st">&quot;follow_ups&quot;</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>df_follow_ups2 <span class="ot">&lt;-</span> <span class="fu">tcga_xml2df</span>(<span class="at">xfiles =</span> xml_files, <span class="at">element =</span> <span class="st">&quot;follow_ups&quot;</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in tcga_xml_parse(xfile = xfiles[x]): NAs introduced by coercion</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in tcga_xml_parse(xfile = xfiles[x]): NAs introduced by coercion</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in tcga_xml_parse(xfile = xfiles[x]): NAs introduced by coercion</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(df_follow_ups)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 653  19</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(df_follow_ups)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;bcr_patient_barcode&quot;                        </span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [2] &quot;bcr_followup_barcode&quot;                       </span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [3] &quot;bcr_followup_uuid&quot;                          </span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [4] &quot;lost_follow_up&quot;                             </span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [5] &quot;radiation_therapy&quot;                          </span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [6] &quot;postoperative_rx_tx&quot;                        </span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;primary_therapy_outcome_success&quot;            </span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [8] &quot;followup_treatment_success&quot;                 </span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [9] &quot;vital_status&quot;                               </span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [10] &quot;days_to_last_followup&quot;                      </span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [11] &quot;days_to_death&quot;                              </span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [12] &quot;person_neoplasm_cancer_status&quot;              </span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [13] &quot;followup_case_report_form_submission_reason&quot;</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [14] &quot;karnofsky_performance_score&quot;                </span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [15] &quot;eastern_cancer_oncology_group&quot;              </span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [16] &quot;performance_status_scale_timing&quot;            </span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [17] &quot;day_of_form_completion&quot;                     </span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [18] &quot;month_of_form_completion&quot;                   </span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [19] &quot;year_of_form_completion&quot;</span></span></code></pre></div>
+</div>
+<p>nte 新生癌症信息</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>df_nte <span class="ot">&lt;-</span> <span class="fu">tcga_list2df</span>(<span class="at">lists =</span> all_list, <span class="at">element =</span> <span class="st">&quot;nte&quot;</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>df_nte2 <span class="ot">&lt;-</span> <span class="fu">tcga_xml2df</span>(<span class="at">xfiles =</span> xml_files, <span class="at">element =</span> <span class="st">&quot;nte&quot;</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in tcga_xml_parse(xfile = xfiles[x]): NAs introduced by coercion</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in tcga_xml_parse(xfile = xfiles[x]): NAs introduced by coercion</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in tcga_xml_parse(xfile = xfiles[x]): NAs introduced by coercion</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(df_nte)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 558   7</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(df_nte)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;bcr_patient_barcode&quot;                                 </span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [2] &quot;days_to_new_tumor_event_after_initial_treatment&quot;     </span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [3] &quot;new_neoplasm_event_type&quot;                             </span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [4] &quot;new_tumor_event_additional_surgery_procedure&quot;        </span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [5] &quot;days_to_new_tumor_event_additional_surgery_procedure&quot;</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [6] &quot;additional_radiation_therapy&quot;                        </span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [7] &quot;additional_pharmaceutical_therapy&quot;</span></span></code></pre></div>
+</div>
+
+
+
+
+
+</body></html>
