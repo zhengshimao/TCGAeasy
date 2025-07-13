@@ -6,3 +6,8 @@
 ^create\.R$
 ^test\.R$
 ^TCGA-GBM$
+^TCGA-GBM\.zip$
+^vignettes/\.quarto$
+^vignettes/*_files$
+^doc$
+^Meta$

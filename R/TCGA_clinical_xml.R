@@ -22,13 +22,13 @@
 tcga_xml_parse <- function(xfile) {
 
   doc <- xml2::read_xml(x = xfile)
-  
+
   node_admin <- xml2::xml_find_all(doc,xpath = ".//admin:admin")
 
     # 1.整理admin：方法二
-  list_admin <- data.frame( 
-    matrix(data = xml2::xml_text(xml2::xml_children(node_admin)), 
-           nrow = 1, 
+  list_admin <- data.frame(
+    matrix(data = xml2::xml_text(xml2::xml_children(node_admin)),
+           nrow = 1,
            ncol = length(xml2::xml_name(xml2::xml_children(node_admin)))
            )
     )
@@ -37,12 +37,12 @@ tcga_xml_parse <- function(xfile) {
   list_admin[list_admin == ""] <- NA
   ## 转为整数
   for (x in c("day_of_dcc_upload","month_of_dcc_upload","year_of_dcc_upload")) {
-    list_admin[[x]] <- as.integer(list_admin[[x]]) 
+    list_admin[[x]] <- as.integer(list_admin[[x]])
   }
 
   ## 2.整理病人基本信息：方法二 # 去掉最后的"new_tumor_events" "drugs" "radiations" "follow_ups"
   node2_xpath <- paste0(".//",tolower(list_admin$disease_code),":patient") # ".//gbm:patient"
-  
+
   text_patient <- xml2::xml_find_all(doc, xpath = node2_xpath) %>% xml2::xml_children() %>% xml2::xml_text()
   name_patient <- xml2::xml_find_all(doc, xpath = node2_xpath) %>% xml2::xml_children() %>% xml2::xml_name()
 
@@ -70,7 +70,7 @@ tcga_xml_parse <- function(xfile) {
   # 去掉最后的几行；将 bcr_patient_barcode 放到第1列
   exclude_col <- c("new_tumor_events","drugs","radiations","follow_ups")
   list_patient <- list_patient %>% dplyr::select(-dplyr::all_of(exclude_col)) %>% dplyr::relocate("bcr_patient_barcode", .before = 1)
-  
+
   ## 1. 整理admin: 增加 bcr_patient_barcode
   list_admin <- list_admin %>% dplyr::mutate("bcr_patient_barcode" = list_patient[["bcr_patient_barcode"]], .before =1 )
 
@@ -81,15 +81,15 @@ tcga_xml_parse <- function(xfile) {
   text_drugs <- node_drugs %>% xml2::xml_children() %>% xml2::xml_text()
   name_drugs <- node_drugs %>% xml2::xml_children() %>% xml2::xml_name()
   name_drugs_uniq <- name_drugs[!duplicated(name_drugs)]
-  
+
   if(length(name_drugs) != 0){ # 有化疗信息时
     list_drugs <- data.frame(
-      matrix(ncol = length(name_drugs_uniq), 
+      matrix(ncol = length(name_drugs_uniq),
              nrow = max(table(name_drugs)))
     )
     colnames(list_drugs) <- name_drugs_uniq
     list_drugs <- list_drugs %>% dplyr::as_tibble()
-    
+
     for (x in name_drugs_uniq) {
       if(x %in% name_drugs_uniq){
         list_drugs[[x]] <- text_drugs[name_drugs %in% x]
@@ -102,7 +102,7 @@ tcga_xml_parse <- function(xfile) {
         list_drugs[[x]] <- as.numeric(list_drugs[[x]])
       }
     }
-    
+
     # 处理缺失值
     list_drugs[list_drugs == ""] <- NA
     # 新增 bcr_patient_barcode 列
@@ -110,29 +110,29 @@ tcga_xml_parse <- function(xfile) {
   }else{
     list_drugs <- NA # 无化疗信息时
   }
-  
+
   ## 4. 整理病人放疗信息
   ## rad:radiation
   node_radiations <- xml2::xml_find_all(doc, xpath = ".//rad:radiations") %>% xml2::xml_children()
   text_radiations <- node_radiations %>% xml2::xml_children() %>% xml2::xml_text()
   name_radiations <- node_radiations %>% xml2::xml_children() %>% xml2::xml_name()
   name_radiations_uniq <- name_radiations[!duplicated(name_radiations)]
-  
+
   if(length(name_radiations) != 0){ # 有放疗信息时
     list_radiations <- data.frame(
-      matrix(ncol = length(name_radiations_uniq), 
+      matrix(ncol = length(name_radiations_uniq),
              nrow = max(table(name_radiations)))
     )
     colnames(list_radiations) <- name_radiations_uniq
     list_radiations <- list_radiations %>% dplyr::as_tibble()
-    
+
     for (x in name_radiations_uniq) {
       list_radiations[[x]] <- text_radiations[name_radiations %in% x]
     }
     # 转为数值
     to_num <- c("days_to_radiation_therapy_end","days_to_radiation_therapy_end",
                 "radiation_dosage","numfractions","day_of_form_completion","month_of_form_completion","year_of_form_completion")
-    
+
     for (x in to_num) {
       if(x %in% name_radiations_uniq){ # 有该列再转换
         list_radiations[[x]] <- as.numeric(list_radiations[[x]])
@@ -145,29 +145,29 @@ tcga_xml_parse <- function(xfile) {
   }else{
     list_radiations <- NA # 无放疗信息时
   }
-  
+
   ## 5.整理随访信息
   node5_xpath <- paste0(".//",tolower(list_admin$disease_code),":follow_ups") # ".//gbm:follow_ups"
   node_followups <- xml2::xml_find_all(doc, xpath = node5_xpath) # %>% xml_children()
   text_followups <- node_followups %>% xml2::xml_children() %>% xml2::xml_children() %>% xml2::xml_text()
   name_followups <- node_followups %>% xml2::xml_children() %>% xml2::xml_children() %>% xml2::xml_name()
   name_followups_uniq <- name_followups[!duplicated(name_followups)]
-  
+
   if(length(name_followups) != 0){  # 有随访信息时
     list_followups <- data.frame(
-      matrix(ncol = length(name_followups_uniq), 
+      matrix(ncol = length(name_followups_uniq),
              nrow = max(table(name_followups)))
     )
     colnames(list_followups) <- name_followups_uniq
     list_followups <- list_followups %>% dplyr::as_tibble()
-    
+
     for (x in name_followups_uniq) {
       list_followups[[x]] <- text_followups[name_followups %in% x]
     }
     # 转为数值
     to_num <- c("days_to_last_followup","days_to_death",
                 "karnofsky_performance_score","eastern_cancer_oncology_group","day_of_form_completion","month_of_form_completion","year_of_form_completion")
-    
+
     for (x in to_num) {
       if(x %in% name_followups_uniq){ # 有该列再转换
         list_followups[[x]] <- as.numeric(list_followups[[x]])
@@ -180,30 +180,30 @@ tcga_xml_parse <- function(xfile) {
     # 新增bcr_patient_barcode列
     list_followups <- list_followups %>% dplyr::select(-dplyr::all_of(exclude_col)) %>% dplyr::mutate("bcr_patient_barcode" = list_patient[["bcr_patient_barcode"]], .before = 1)
   }else{ # 无随访信息时
-    list_followups <- NA 
+    list_followups <- NA
   }
-  
+
   # 6. 整理新发肿瘤事件信息
   node6_xpath <- paste0(".//",tolower(list_admin$disease_code),"_nte:new_tumor_event") # ".//gbm_nte:new_tumor_event"
   node_nte <- xml2::xml_find_all(doc, xpath = node6_xpath) # %>% xml_children()
   text_nte <- node_nte %>% xml2::xml_children() %>% xml2::xml_text()
   name_nte <- node_nte %>% xml2::xml_children() %>% xml2::xml_name()
   name_nte_uniq <- name_nte[!duplicated(name_nte)]
-  
+
   if(length(name_nte) != 0){
     list_nte <- data.frame(
-      matrix(ncol = length(name_nte_uniq), 
+      matrix(ncol = length(name_nte_uniq),
              nrow = max(table(name_nte)))
     )
     colnames(list_nte) <- name_nte_uniq
     list_nte <- list_nte %>% dplyr::as_tibble()
-    
+
     for (x in name_nte_uniq) {
       list_nte[[x]] <- text_nte[name_nte %in% x]
     }
     # 转为数值
     to_num <- c("days_to_new_tumor_event_after_initial_treatment","days_to_new_tumor_event_additional_surgery_procedure" )
-    
+
     for (x in to_num) {
       if(x %in% name_nte_uniq){ # 有该列再转换
         list_nte[[x]] <- as.numeric(list_nte[[x]])
@@ -211,14 +211,14 @@ tcga_xml_parse <- function(xfile) {
     }
     # 处理缺失值
     list_nte[list_nte == ""] <- NA
-    
+
     # 新增bcr_patient_barcode列
     list_nte <- list_nte%>% dplyr::mutate("bcr_patient_barcode" = list_patient[["bcr_patient_barcode"]], .before = 1)
   }else{
     list_nte <- NA
   }
-  
-  
+
+
   return(list(admin      = list_admin,
               patient    = list_patient,
               drugs      = list_drugs,
@@ -226,22 +226,23 @@ tcga_xml_parse <- function(xfile) {
               follow_ups = list_followups,
               nte        = list_nte
               ))
-}  
+}
 
 #' Parse Multiple TCGA XML Files into List
 #'
 #' Applies \code{tcga_xml_parse()} to a vector of TCGA XML clinical files.
 #'
 #' @param xfiles A character vector of file paths to TCGA XML clinical files.
+#' @param verbose print information of file path, default is FALSE.
 #'
 #' @return A list where each element is the output of \code{tcga_xml_parse()}.
 #'
 #' @seealso \code{\link{tcga_xml_parse}}, \code{\link{tcga_xml2df}}, \code{\link{tcga_list2df}}
 #' @export
 # 读取多个xml文件为list
-tcga_xml2list <- function(xfiles){
+tcga_xml2list <- function(xfiles,verbose = FALSE){
   lists <- lapply(seq_along(xfiles), function(x){
-    message(x," ",xfiles[x])
+    if(verbose)message(x," ",xfiles[x])
     return(tcga_xml_parse(xfile = xfiles[x]))
   })
   return(lists)
@@ -256,27 +257,28 @@ tcga_xml2list <- function(xfiles){
 #' @param element The name of the element to extract. One of:
 #' \code{"admin"}, \code{"patient"}, \code{"drugs"},
 #' \code{"radiations"}, \code{"follow_ups"}, or \code{"nte"}.
+#' @param verbose print information of file path, default is FALSE.
 #'
 #' @return A tibble combining the specified element from all XML files.
 #' Skips any entries where the element is missing (i.e., \code{NA}).
 #'
 #' @seealso \code{\link{tcga_xml_parse}}, \code{\link{tcga_xml2list}}, \code{\link{tcga_list2df}}
 #' @export
-#' 
+#'
 # 读取单个xml文件，将其中某个元素合并为df
-tcga_xml2df <- function(xfiles, element){
+tcga_xml2df <- function(xfiles, element, verbose = FALSE){
   all_element <- names(tcga_xml_parse(xfiles[1])) # c("admin", "patient", "drugs", "radiations", "follow_ups", "nte" )
 
   # 检查element是否在对应list中
   if(!element %in% all_element){
     stop(paste0("'",element, "' not in elements '",paste0(all_element, collapse = ", "),"'"))
   }
-  
+
   all_element_list <- lapply(seq_along(xfiles), function(x){
-    message(x," ",xfiles[x])
+    if(verbose) message(x," ",xfiles[x])
     return(tcga_xml_parse(xfile = xfiles[x])[[element]])
   })
-  
+
   all_element_df <- do.call(dplyr::bind_rows, all_element_list[!is.na(all_element_list)])
   return(all_element_df)
 }
@@ -296,16 +298,16 @@ tcga_xml2df <- function(xfiles, element){
 #'
 #' @seealso \code{\link{tcga_xml_parse}}, \code{\link{tcga_xml2df}}
 #' @export
-#' 
+#'
 # 将所有文件的list中的某个元素合并为df
 tcga_list2df <- function(lists, element){
   all_element <- names(lists[[1]]) # c("admin", "patient", "drugs", "radiations", "follow_ups", "nte" )
-  
+
   # 检查element是否在对应list中
   if(!element %in% all_element){
     stop(paste0("'",element, "' not in elements '",paste0(all_element, collapse = ", "),"'"))
   }
-  
+
   all_element_list <- lapply(seq_along(lists), function(x){
     return(lists[[x]][[element]])
   })

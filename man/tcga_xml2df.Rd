@@ -4,7 +4,7 @@
 \alias{tcga_xml2df}
 \title{Extract Specific Element from Multiple TCGA XML Files as Data Frame}
 \usage{
-tcga_xml2df(xfiles, element)
+tcga_xml2df(xfiles, element, verbose = FALSE)
 }
 \arguments{
 \item{xfiles}{A character vector of file paths to TCGA XML files.}
@@ -12,6 +12,8 @@ tcga_xml2df(xfiles, element)
 \item{element}{The name of the element to extract. One of:
 \code{"admin"}, \code{"patient"}, \code{"drugs"},
 \code{"radiations"}, \code{"follow_ups"}, or \code{"nte"}.}
+
+\item{verbose}{print information of file path, default is FALSE.}
 }
 \value{
 A tibble combining the specified element from all XML files.

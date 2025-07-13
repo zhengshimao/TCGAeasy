@@ -4,10 +4,12 @@
 \alias{tcga_xml2list}
 \title{Parse Multiple TCGA XML Files into List}
 \usage{
-tcga_xml2list(xfiles)
+tcga_xml2list(xfiles, verbose = FALSE)
 }
 \arguments{
 \item{xfiles}{A character vector of file paths to TCGA XML clinical files.}
+
+\item{verbose}{print information of file path, default is FALSE.}
 }
 \value{
 A list where each element is the output of \code{tcga_xml_parse()}.

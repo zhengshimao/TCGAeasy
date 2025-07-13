@@ -16,3 +16,8 @@ Imports:
     magrittr,
     xml2
 LazyDataL: true
+Suggests: 
+    knitr,
+    quarto,
+    stringr
+VignetteBuilder: quarto
