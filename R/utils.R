@@ -74,6 +74,39 @@ get_numeric <- function(doc, xpath, return_all = TRUE) {
 
 }
 
+#' @title Iterative garbage collection.
+#'
+#' @description
+#' Performs garbage collection until free memory idicators show no change.
+#' same with `WGCNA::collectGarbage()`.
+#'
+#' @return
+#' No return value.
+#'
+#' @export
+#'
+#' @examples
+#' collectGarbage()
+collectGarbage <- function(){
+  while (gc()[2, 4] != gc()[2, 4] | gc()[1, 4] != gc()[1, 4]) {
+  }
+}
+
+#' Check if a string is numeric-like
+#'
+#' This function checks whether the input string represents a numeric value,
+#' allowing optional leading minus sign and decimal point.
+#' Note: This is a simple check and does not guarantee strict numeric formatting.
+#'
+#' @param x A character string to test.
+#'
+#' @return A logical value. TRUE if the string looks like a number, FALSE otherwise.
+#'
+#' @examples
+#' is_numeric_str("123")      # TRUE
+#' is_numeric_str("-45.6")    # TRUE
+#' is_numeric_str("12.3.4")   # TRUE (not strictly valid number)
+#' is_numeric_str("abc")      # FALSE
 is_numeric_str <- function(x) grepl("^-?[0-9.]+$", x)
 
 # # 1.整理admin：方法一
