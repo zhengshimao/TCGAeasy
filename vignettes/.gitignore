@@ -2,3 +2,4 @@
 *.R
 *_files
 /TCGA-GBM/
+/GDCdata/

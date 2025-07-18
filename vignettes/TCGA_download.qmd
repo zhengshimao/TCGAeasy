@@ -1,0 +1,72 @@
+---
+title: "Download TCGA Data."
+vignette: >
+  %\VignetteIndexEntry{Download TCGA Data.}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: '#>'
+---
+
+## 下载临床信息
+
+- 下载文件信息时，如果给予赋值，将会返回 `query` 值。
+
+- 这种写法占用过多内存，需要及时释放内存，即需要执行`WGCNA::collectGarbage()`。
+为了使包更加轻便，本包不降武德，直接把`WGCNA::collectGarbage()`函数抄了过来。
+
+```{r}
+#| label: setup
+library(TCGAeasy)
+tcga_download_clinic("TCGA-LGG")
+query <- tcga_download_clinic("TCGA-LGG")
+xfiles <- list.files("GDCdata/TCGA-LGG/Clinical/", pattern = "xml", recursive = TRUE, full.names = T)
+clin_patient <- tcga_xml2df(xfiles = xfiles, element = "patient", verbose = FALSE)
+print(clin_patient)
+collectGarbage()
+```
+
+## 下载RNA seq 表达文件
+
+- 下载转录组定量文件时，如果给予赋值，将会返回 `query` 值。注意及时回收内存。
+
+```{r}
+tcga_download_rna_seq_exp(project = "TCGA-LGG")
+query <- tcga_download_rna_seq_exp(project = "TCGA-LGG")
+print(query)
+collectGarbage()
+```
+
+获取Count矩阵
+
+- 这里也包含下载功能，如果文件不存在，会自动下载。如果有结果，则会自动跳过。
+
+- `clean_exp` 是去除 HTSeq 非基因行： "N_ambiguous","N_multimapping","N_noFeature",
+"N_unmapped"，同时去除以 `_PAR_Y` 结尾的基因ID行，目前这些基因在所有样本的检测结
+果中表达量均为0.
+
+```{r}
+count <- get_tcga_count("TCGA-LGG", clean = F)
+clean_count <- clean_exp(df = count)
+
+clean_count <- get_tcga_count("TCGA-LGG", clean = TRUE)
+print(clean_count)
+collectGarbage()
+```
+
+获取和TPM矩阵
+
+- 这里也包含下载功能，如果文件不存在，会自动下载。如果有结果，则会自动跳过。
+
+```{r}
+tpm <- get_tcga_tpm("TCGA-LGG", clean = F)
+clean_tpm <- clean_exp(df = tpm)
+
+clean_tpm <- get_tcga_count("TCGA-LGG", clean = TRUE)
+print(clean_tpm)
+collectGarbage()
+```
+
+

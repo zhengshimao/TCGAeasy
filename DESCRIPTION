@@ -14,6 +14,8 @@ RoxygenNote: 7.3.2
 Imports: 
     dplyr,
     magrittr,
+    readr,
+    TCGAbiolinks (>= 2.24.3),
     xml2
 LazyDataL: true
 Suggests: 

@@ -1,5 +1,8 @@
 .Rproj.user
 inst/doc
 **/.quarto/
+.Rhistory
+/GDCdata/
+MANIFEST\.txt
 /doc/
 /Meta/

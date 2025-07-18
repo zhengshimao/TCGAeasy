@@ -9,9 +9,10 @@ usethis::use_pipe(export = TRUE)
 devtools::document() # 将其导入到命名空间
 
 # 添加R包
-# usethis::use_package("TCGAbiolinks",min_version = "2.24.3")
+usethis::use_package("TCGAbiolinks",min_version = "2.24.3")
 usethis::use_package("xml2")
 usethis::use_package("dplyr")
+usethis::use_package("readr")
 usethis::use_package("stringr",type = "Suggests")
 # usethis::use_package("tibble")
 
@@ -29,6 +30,7 @@ devtools::build()
 
 # vignette
 usethis::use_vignette("TCGAeasy.qmd", "Easy Access and Analysis Tools for TCGA Data")
+usethis::use_vignette("TCGA_download.qmd", "Download TCGA Data.")
 usethis::use_vignette("Read_TCGA_XML.qmd",  "Read TCGA Clinical XML files Quickly.")
 usethis::use_vignette("Read_TCGA_XML2.qmd", "Read TCGA Clinical XML files Simply.")
 ##  构建 vignette

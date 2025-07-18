@@ -84,4 +84,5 @@ df_patient <- tcga_list2df(lists = all_list, element = "patient")
 df_patient2 <- tcga_xml2df(xfiles = xml_files, element = "patient")
 dim(df_patient)
 colnames(df_patient)
-``
+
+```
