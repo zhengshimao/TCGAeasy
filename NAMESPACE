@@ -2,6 +2,9 @@
 
 export("%<>%")
 export("%>%")
+export(get_integer)
+export(get_numeric)
+export(get_text)
 export(tcga_list2df)
 export(tcga_xml2df)
 export(tcga_xml2list)

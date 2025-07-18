@@ -28,7 +28,11 @@ devtools::check()
 devtools::build()
 
 # vignette
-use_vignette("TCGAeasy.qmd", "Easy Access and Analysis Tools for TCGA Data")
+usethis::use_vignette("TCGAeasy.qmd", "Easy Access and Analysis Tools for TCGA Data")
+usethis::use_vignette("Read_TCGA_XML.qmd",  "Read TCGA Clinical XML files Quickly.")
+usethis::use_vignette("Read_TCGA_XML2.qmd", "Read TCGA Clinical XML files Simply.")
+##  构建 vignette
+devtools::build_vignettes()
 
 # 安装本地包
 install.packages("./",repos = NULL, type = "source")

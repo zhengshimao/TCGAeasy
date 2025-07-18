@@ -1,0 +1,75 @@
+---
+title: "Read TCGA Clinical XML files Simply."
+vignette: >
+  %\VignetteIndexEntry{Read TCGA Clinical XML files Simply.}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: '#>'
+---
+
+```{r}
+#| label: setup
+library(TCGAeasy)
+library(xml2)
+library(tibble)
+xml_gzfile <- system.file("extdata/TCGA-GBM.zip",package = "TCGAeasy")
+# file.copy(from = xml_gzfile, to = "./",overwrite = T)
+# unzip(zipfile = "./TCGA-GBM.zip", exdir = "./")
+unzip(zipfile = xml_gzfile, exdir = "./")
+
+xml_files <- list.files("./TCGA-GBM/", pattern = ".xml$", 
+                        recursive = T, full.names = T)
+```
+
+
+读取单个临床文件主要信息
+
+- 部分节点名称与疾病有关，在对不同疾病使用时，要注意查看xml文件内节点信息来修改。
+
+- 部分节点名称可能会重复，因此使用 `return_all` 来对结果去重复。
+这里采用去重函数`uniq()` 而不是取第1个元素。防止多个相同节点，但文本不同而遗漏信
+息。实际上这种方法如果包含多个不同的文本的话，就要去核对或者重写 `get_text()` 函
+数。
+
+```{r}
+doc <- read_xml(x = xml_files[1])
+
+test_df <- tibble(
+   tumor_tissue_site = get_text(
+     doc, ".//clin_shared:tumor_tissue_site", return_all = F),
+   histological_type = get_text(
+     doc, ".//shared:histological_type", return_all = F),
+   prior_glioma = get_text(doc, ".//gbm:prior_glioma", return_all = F),
+   gender = get_text(doc, ".//shared:gender", return_all = F),
+   vital_status = get_text(
+     doc, ".//clin_shared:vital_status", return_all = F),
+   days_to_birth = get_numeric(
+     doc, ".//clin_shared:days_to_birth", return_all = F),
+   days_to_death = get_integer(
+     doc, ".//clin_shared:days_to_death", return_all = F),
+   days_to_last_followup = get_integer(
+     doc, ".//clin_shared:days_to_last_followup", return_all = F),
+   race = get_text(doc, ".//clin_shared:race", return_all = F),
+   bcr_patient_barcode = get_text(
+     doc, ".//shared:bcr_patient_barcode", return_all = F),
+   tissue_source_site = get_text(
+     doc, ".//shared:tissue_source_site", return_all = F),
+   patient_id = get_text(doc, ".//shared:patient_id", return_all = F),
+   bcr_patient_uuid = get_text(
+     doc, ".//shared:bcr_patient_uuid", return_all = F),
+   days_to_initial_pathologic_diagnosis = get_integer(
+     doc, ".//clin_shared:days_to_initial_pathologic_diagnosis", return_all = F),
+   age_at_initial_pathologic_diagnosis = get_integer(
+     doc, ".//clin_shared:age_at_initial_pathologic_diagnosis", return_all = F),
+   year_of_initial_pathologic_diagnosis = get_integer(
+     doc, ".//clin_shared:year_of_initial_pathologic_diagnosis", return_all = F)
+)
+print(test_df)
+```
+
+
+
+
