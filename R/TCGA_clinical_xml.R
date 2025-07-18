@@ -177,8 +177,13 @@ tcga_xml_parse <- function(xfile) {
     list_followups[list_followups == ""] <- NA
     # 去掉最后的几行；将 bcr_patient_barcode 放到第1列
     exclude_col <- c("new_tumor_events")
+    exclude_col <- exclude_col[exclude_col %in% colnames(list_followups)]
+    if(length(exclude_col) != 0){
+      list_followups <- list_followups %>% dplyr::select(-dplyr::all_of(x))
+    }
+
     # 新增bcr_patient_barcode列
-    list_followups <- list_followups %>% dplyr::select(-dplyr::all_of(exclude_col)) %>% dplyr::mutate("bcr_patient_barcode" = list_patient[["bcr_patient_barcode"]], .before = 1)
+    list_followups <- list_followups %>% dplyr::mutate("bcr_patient_barcode" = list_patient[["bcr_patient_barcode"]], .before = 1)
   }else{ # 无随访信息时
     list_followups <- NA
   }
