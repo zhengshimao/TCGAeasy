@@ -4,12 +4,14 @@
 \alias{get_text}
 \title{Extract Text from XML Node}
 \usage{
-get_text(doc, xpath)
+get_text(doc, xpath, return_all = TRUE)
 }
 \arguments{
 \item{doc}{An XML document parsed by \code{xml2::read_xml()}.}
 
 \item{xpath}{A character string representing the XPath query.}
+
+\item{return_all}{return all result or not. if TRUE, return all results. if FALSE, return unique result.}
 }
 \value{
 A character vector of node text values. Returns \code{NA} if the node is not found.
