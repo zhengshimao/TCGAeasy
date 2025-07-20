@@ -10,10 +10,12 @@ tcga_download(
   data.type,
   data.format,
   workflow.type,
+  platform,
   query_rds,
   manifest,
   manifest_only = FALSE,
-  download_dir = "GDCdata"
+  download_dir = "GDCdata",
+  ...
 )
 }
 \arguments{
@@ -27,6 +29,8 @@ tcga_download(
 
 \item{workflow.type}{GDC workflow type.}
 
+\item{platform}{same with \link[TCGAbiolinks]{GDCquery}}
+
 \item{query_rds}{save query to RDS.}
 
 \item{manifest}{(Optional) A path to save a manifest file. If missing, it will be generated.}
@@ -34,6 +38,8 @@ tcga_download(
 \item{manifest_only}{Logical; if \code{TRUE}, only the manifest file will be generated without downloading data.}
 
 \item{download_dir}{Directory to store downloaded files. Default is \code{"GDCdata"}.}
+
+\item{...}{\link[TCGAbiolinks]{GDCquery}}
 }
 \value{
 Returns the internal query object invisibly. Nothing is printed unless assigned to a variable.
