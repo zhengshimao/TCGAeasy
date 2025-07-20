@@ -21,10 +21,16 @@ get_manifest <- function (query, manifest, download_dir = "GDCdata"){
                           "state")
   if (missing(manifest)) {
     if(is.na(query$workflow.type)){
-      manifest <- paste0(query$project[[1]],"_",gsub(" ","_",query$data.category),"_",gsub(" ","_",query$results[[1]][["data_format"]][1]),"_gdc_manifest.txt")
+      manifest <- paste0(query$project[[1]],"_",gsub(" ","_",query$data.category),"_",gsub(" ","_",query$data.type),"_",gsub(" ","_",query$results[[1]][["data_format"]][1]) )
     }else{
-      manifest <- paste0(query$project[[1]],"_",gsub(" ","_",query$data.category),"_",gsub(" ","_",query$results[[1]][["data_format"]][1]),"_",gsub(" ","_",query$workflow.type),"_gdc_manifest.txt")
+      manifest <- paste0(query$project[[1]],"_",gsub(" ","_",query$data.category),"_",gsub(" ","_",query$data.type),"_",gsub(" ","_",query$results[[1]][["data_format"]][1]),"_",gsub(" ","_",query$workflow.type) )
     }
+
+    if(!is.na(query$platform[[1]])){
+      manifest <- paste0(manifest, "_",gsub(" ","_",query$platform[[1]]))
+    }
+    manifest <- paste0(manifest, "_gdc_manifest.txt")
+
     manifest <- file.path(download_dir, manifest)
     readr::write_delim(manifest_df, manifest, delim = "\t", col_names = TRUE)
     message("Manifest saved as: ", manifest)
@@ -42,10 +48,12 @@ get_manifest <- function (query, manifest, download_dir = "GDCdata"){
 #' @param data.type The data type, e.g., `"Clinical Supplement"`.
 #' @param data.format The file format, e.g., `"BCR XML"`.
 #' @param workflow.type GDC workflow type.
+#' @param platform same with \link[TCGAbiolinks]{GDCquery}
 #' @param query_rds save query to RDS.
 #' @param manifest (Optional) A path to save a manifest file. If missing, it will be generated.
 #' @param manifest_only Logical; if `TRUE`, only the manifest file will be generated without downloading data.
 #' @param download_dir Directory to store downloaded files. Default is `"GDCdata"`.
+#' @param ... \link[TCGAbiolinks]{GDCquery}
 #'
 #' @return Returns the internal query object invisibly. Nothing is printed unless assigned to a variable.
 #' @export
@@ -54,18 +62,26 @@ tcga_download <- function(project,
                           data.type,
                           data.format,
                           workflow.type,
+                          platform,
                           query_rds,
                           manifest,
                           manifest_only = FALSE,
-                          download_dir = "GDCdata"
+                          download_dir = "GDCdata",
+                          ...
                           ){
   if(!dir.exists(download_dir)) dir.create(path = download_dir, showWarnings = TRUE, recursive = TRUE)
   if(missing(query_rds)){
     if(missing(workflow.type)){
-      query_rds <- paste0(project,"_",gsub(" ","_",data.category),"_",gsub(" ","_",data.format),"_query.rds")
+      query_rds <- paste0(project,"_",gsub(" ","_",data.category),"_",gsub(" ","_",data.type),"_",gsub(" ","_",data.format))
     }else{
-      query_rds <- paste0(project,"_",gsub(" ","_",data.category),"_",gsub(" ","_",data.format),"_",gsub(" ","_",workflow.type),"_query.rds")
+      query_rds <- paste0(project,"_",gsub(" ","_",data.category),"_",gsub(" ","_",data.type),"_",gsub(" ","_",data.format),"_",gsub(" ","_",workflow.type))
     }
+
+    if(!missing(platform)){
+      query_rds <- paste0(query_rds, "_",gsub(" ","_",platform))
+    }
+
+    query_rds <- paste0(query_rds,"_query.rds")
     query_rds <- file.path(download_dir, query_rds)
   }
   # query_value <- paste0(project,"_",data.category,"_",gsub(" ","_",data.format),"_query")
@@ -78,7 +94,9 @@ tcga_download <- function(project,
       data.category = data.category,
       data.type = data.type,
       data.format = data.format,
-      workflow.type = workflow.type
+      workflow.type = workflow.type,
+      platform = platform,
+      ...
     )
 
     # assign(query_value,
@@ -134,34 +152,34 @@ tcga_download_clinic <- function(project,
                          data.category = "Clinical",
                          data.type = "Clinical Supplement",
                          data.format = "BCR XML",
-                         manifest,
-                         manifest_only = FALSE,
+                         manifest = manifest,
+                         manifest_only = manifest_only,
                          download_dir = download_dir)
   invisible(query)
 }
 
-#' Download TCGA expression quantification data
+#' Download TCGA mRNA expression quantification data
 #'
 #' This function downloads gene expression quantification data
 #' (STAR-counts format) from the GDC database for a specified TCGA project.
 #'
 #' @param project Character. TCGA project ID (e.g., `"TCGA-LGG"`).
-#' @param manifest Data frame or file path. Manifest file obtained from GDC.
+#' @param manifest A file path of the manifest file used for download.
 #' @param download_dir Character. Directory to store downloaded files. Default is `"GDCdata"`.
 #' @param manifest_only Logical. If `TRUE`, only generate the manifest without downloading. Default is `FALSE`.
 #'
 #' @return A query object returned invisibly (for optional re-use).
 #' @export
-tcga_download_rna_seq_exp <- function(project,
+tcga_download_mrna_seq_exp <- function(project,
                                       manifest,
                                       download_dir = "GDCdata",
                                       manifest_only = FALSE){
-  query <- tcga_download(project,
+  query <- tcga_download(project = project,
                          data.category = "Transcriptome Profiling",
                          data.type = "Gene Expression Quantification",
                          data.format = "STAR - Counts",
-                         manifest,
-                         manifest_only = FALSE,
+                         manifest = manifest,
+                         manifest_only = manifest_only,
                          download_dir = download_dir)
   invisible(query)
 }
@@ -187,7 +205,7 @@ clean_exp <- function(df,
                       ensembl_id = row_name
                       ){
   df <- df[!stringr::str_detect(df[["gene_id"]], "_PAR_Y$"),]
-  df <- df %>% dplyr::filter(! .[["gene_id"]] %in% c("N_ambiguous",
+  df <- df %>% dplyr::filter(! df[["gene_id"]] %in% c("N_ambiguous",
                                                      "N_multimapping",
                                                      "N_noFeature",
                                                      "N_unmapped"))
@@ -209,53 +227,91 @@ clean_exp <- function(df,
   return(df)
 }
 
-#' Extract raw expression counts from TCGA
+#' Extract raw expression counts from TCGA mRNA
 #'
 #' This function downloads and parses raw gene expression count data from TCGA.
 #'
 #' @param project Character. TCGA project ID.
-#' @param manifest Data frame or file path. Manifest file from GDC.
+#' @param manifest A file path of the manifest file used for download.
 #' @param download_dir Character. Directory for downloaded files. Default is `"GDCdata"`.
 #' @param clean Logical. If `TRUE`, remove unwanted gene entries. Default is `TRUE`.
 #'
 #' @return A data frame of raw expression counts with gene annotations.
 #' @export
-get_tcga_count <- function(project,
+get_tcga_mrna_count <- function(project,
                            manifest,
                            download_dir = "GDCdata",
                            clean = TRUE
                            ){
-  query <- tcga_download_rna_seq_exp(project = project,
+  query <- tcga_download_mrna_seq_exp(project = project,
                                      manifest = manifest,
                                      download_dir = download_dir,
                                      manifest_only = FALSE)
   exp <- TCGAbiolinks::GDCprepare(query, directory = download_dir, summarizedExperiment = FALSE)
-  count <- exp %>% dplyr::select("gene_id","gene_name","gene_type", tidyselect::starts_with(match = "unstranded_"))
-  colnames(count) %<>% stringr::str_remove("unstranded_")
+
+  # if(any(stringr::str_detect(colnames(exp), "^unstranded_"))){
+  #   prefix <- "unstranded_" # mRNA
+  # }else if(any(stringr::str_detect(colnames(exp), "^read_count"))){
+  #   prefix <- "read_count_" # miRNA
+  # }
+  prefix <- "unstranded_"
+  count <- exp %>%
+    dplyr::select("gene_id","gene_name","gene_type", tidyselect::starts_with(match = prefix))
+
+  colnames(count) %<>% stringr::str_remove(prefix)
   if(clean){
     count <- clean_exp(count)
   }
   return(count)
 }
 
-#' Extract TPM expression matrix from TCGA
+#' Extract FPKM expression matrix from TCGA mRNA
 #'
-#' This function downloads and parses TPM-normalized expression data from TCGA.
+#' This function downloads and parses FPKM-normalized expression data from TCGA.
 #'
 #' @param project Character. TCGA project ID.
-#' @param manifest Data frame or file path. Manifest file from GDC.
+#' @param manifest A file path of the manifest file used for download.
 #' @param download_dir Character. Directory for downloaded files. Default is `"GDCdata"`.
 #' @param clean Logical. If `TRUE`, remove unwanted gene entries. Default is `TRUE`.
 #'
 #' @return A data frame of TPM values with gene annotations.
 #' @export
-get_tcga_tpm <- function(project,
+get_tcga_mrna_fpkm <- function(project,
+                           manifest,
+                           download_dir = "GDCdata",
+                           clean = TRUE
+){
+  query <- tcga_download_mrna_seq_exp(project = project,
+                                     manifest = manifest,
+                                     download_dir = download_dir,
+                                     manifest_only = FALSE)
+  exp <- TCGAbiolinks::GDCprepare(query, directory = download_dir, summarizedExperiment = FALSE)
+  fpkm <- exp %>% dplyr::select("gene_id","gene_name","gene_type", tidyselect::starts_with(match = "fpkm_unstranded"))
+  colnames(fpkm) %<>% stringr::str_remove("fpkm_unstranded")
+  if(clean){
+    fpkm <- clean_exp(fpkm)
+  }
+  return(fpkm)
+}
+
+#' Extract TPM expression matrix from TCGA mRNA
+#'
+#' This function downloads and parses TPM-normalized expression data from TCGA.
+#'
+#' @param project Character. TCGA project ID.
+#' @param manifest A file path of the manifest file used for download.
+#' @param download_dir Character. Directory for downloaded files. Default is `"GDCdata"`.
+#' @param clean Logical. If `TRUE`, remove unwanted gene entries. Default is `TRUE`.
+#'
+#' @return A data frame of TPM values with gene annotations.
+#' @export
+get_tcga_mrna_tpm <- function(project,
                          manifest,
                          download_dir = "GDCdata",
                          clean = TRUE
 
 ){
-  query <- tcga_download_rna_seq_exp(project = project,
+  query <- tcga_download_mrna_seq_exp(project = project,
                                      manifest = manifest,
                                      download_dir = download_dir,
                                      manifest_only = FALSE)
@@ -268,5 +324,237 @@ get_tcga_tpm <- function(project,
   return(tpm)
 }
 
+#' Download TCGA miRNA-seq expression data
+#'
+#' This function downloads miRNA expression quantification data from TCGA using a manifest file.
+#'
+#' @param project TCGA project ID (e.g., "TCGA-BRCA").
+#' @param manifest A file path of the manifest file used for download.
+#' @param download_dir Directory where the downloaded data will be saved. Default is "GDCdata".
+#' @param manifest_only Logical. If TRUE, only the manifest file is generated without actual download. Default is FALSE.
+#'
+#' @return Returns invisibly the query object generated by `tcga_download()`.
+#' @export
+tcga_download_mirna_seq_exp <- function(project,
+                                       manifest,
+                                       download_dir = "GDCdata",
+                                       manifest_only = FALSE){
+  query <- tcga_download(project = project,
+                         data.category = "Transcriptome Profiling",
+                         data.type = "miRNA Expression Quantification",
+                         data.format = "txt",
+                         workflow.type = "BCGSC miRNA Profiling",
+                         manifest = manifest,
+                         manifest_only = manifest_only,
+                         download_dir = download_dir)
+  invisible(query)
+}
+
+#' Extract raw expression counts from TCGA miRNA
+#'
+#' This function downloads and parses raw gene expression count data from TCGA miRNA.
+#'
+#' @param project Character. TCGA project ID.
+#' @param manifest A file path of the manifest file used for download.
+#' @param download_dir Character. Directory for downloaded files. Default is `"GDCdata"`.
+#'
+#' @return A data frame of raw expression counts with gene annotations.
+#' @export
+get_tcga_mirna_count <- function(project,
+                                manifest,
+                                download_dir = "GDCdata"
+){
+  query <- tcga_download_mirna_seq_exp(project = project,
+                                      manifest = manifest,
+                                      download_dir = download_dir,
+                                      manifest_only = FALSE)
+  exp <- TCGAbiolinks::GDCprepare(query, directory = download_dir, summarizedExperiment = FALSE)
+
+  # if(any(stringr::str_detect(colnames(exp), "^unstranded_"))){
+  #   prefix <- "unstranded_" # mRNA
+  # }else if(any(stringr::str_detect(colnames(exp), "^read_count"))){
+  #   prefix <- "read_count_" # miRNA
+  # }
+  prefix <- "read_count_"
+  count <- exp %>%
+    dplyr::select("miRNA_ID", tidyselect::starts_with(match = prefix))
+
+  colnames(count) %<>% stringr::str_remove(prefix)
+
+  return(count)
+}
+
+#' Extract RPM expression matrix from TCGA miRNA
+#'
+#' This function downloads and parses FPKM-normalized expression data from TCGA.
+#'
+#' @param project Character. TCGA project ID.
+#' @param manifest A file path of the manifest file used for download.
+#' @param download_dir Character. Directory for downloaded files. Default is `"GDCdata"`.
+#'
+#' @return A data frame of RPM values with gene annotations.
+#' @export
+get_tcga_mirna_rpm <- function(project,
+                              manifest,
+                              download_dir = "GDCdata"
+
+){
+  query <- tcga_download_mirna_seq_exp(project = project,
+                                      manifest = manifest,
+                                      download_dir = download_dir,
+                                      manifest_only = FALSE)
+  exp <- TCGAbiolinks::GDCprepare(query, directory = download_dir, summarizedExperiment = FALSE)
+  prefix <- "reads_per_million_miRNA_mapped_"
+  rpm <- exp %>% dplyr::select("miRNA_ID", tidyselect::starts_with(match = prefix))
+  colnames(rpm) %<>% stringr::str_remove(prefix)
+  return(rpm)
+}
+
+#' Download TCGA DNA methylation beta values
+#'
+#' This function downloads DNA methylation beta value data from TCGA using a manifest file.
+#'
+#' @param project TCGA project ID (e.g., "TCGA-CHOL").
+#' @param manifest A file path of the manifest file used for download.
+#' @param download_dir Directory where the downloaded data will be saved. Default is "GDCdata".
+#' @param platform Platform name for DNA methylation data (e.g., "Illumina Human Methylation 450" or "Illumina Human Methylation 27").
+#' @param manifest_only Logical. If TRUE, only the manifest file is generated without actual download. Default is FALSE.
+#'
+#' @return Returns invisibly the query object generated by `tcga_download()`.
+#' @export
+#' @examples
+#' \dontrun{
+#'
+#' query <- tcga_download_methy_beta(project = "TCGA-CHOL", platform = "Illumina Human Methylation 450")
+#' beta <- TCGAbiolinks::GDCprepare(query, directory = "GDCdata", summarizedExperiment = FALSE)
+#'
+#' }
+#'
+tcga_download_methy_beta <- function(project,
+                                     manifest,
+                                     download_dir = "GDCdata",
+                                     platform = "Illumina Human Methylation 450",
+                                     manifest_only = FALSE){
+  query <- tcga_download(project = project,
+                         data.category = "DNA Methylation",
+                         data.type = "Methylation Beta Value",
+                         data.format = "txt",
+                         workflow.type = "SeSAMe Methylation Beta Estimation",
+                         platform = platform,
+                         manifest = manifest,
+                         manifest_only = manifest_only,
+                         download_dir = download_dir)
+  invisible(query)
+}
+
+#' Download TCGA copy number variation (CNV) data
+#'
+#' This function downloads CNV data from TCGA using a manifest file.
+#'
+#' @param project TCGA project ID (e.g., "TCGA-LUAD").
+#' @param data.type The type of CNV data to download ("Copy Number Segment" or "Masked Copy Number Segment"). Default is "Copy Number Segment".
+#' @param workflow.type Workflow type used to generate the CNV data ("DNAcopy" or "GATK4 CNV"). Default is "DNAcopy".
+#' @param manifest A file path of the manifest file used for download.
+#' @param download_dir Directory where the downloaded files will be saved. Default is "GDCdata".
+#' @param manifest_only Logical. If TRUE, only the manifest file is generated without downloading the data. Default is FALSE.
+#'
+#' @return Returns invisibly the query object created by `tcga_download()`.
+#' @export
+tcga_download_cnv <- function(project,
+                              data.type = "Copy Number Segment",
+                              workflow.type = "DNAcopy",
+                              manifest,
+                              download_dir = "GDCdata",
+                              manifest_only = FALSE){
+  query <- tcga_download(project = project,
+                         data.category = "Copy Number Variation",
+                         data.type = data.type,
+                         data.format = "txt",
+                         workflow.type = workflow.type,
+                         manifest = manifest,
+                         manifest_only = manifest_only,
+                         download_dir = download_dir
+                         )
+  invisible(query)
+}
+
+#' Download TCGA protein expression data
+#'
+#' This function downloads protein expression quantification data from TCGA using a manifest file.
+#'
+#' @param project TCGA project ID (e.g., "TCGA-CHOL").
+#' @param manifest A file path of the manifest file used for download.
+#' @param download_dir Directory where the downloaded files will be saved. Default is "GDCdata".
+#' @param manifest_only Logical. If TRUE, only the manifest file is generated without downloading the data. Default is FALSE.
+#'
+#' @return Returns invisibly the query object created by `tcga_download()`.
+#' @export
+tcga_download_cnv <- function(project,
+                              manifest,
+                              download_dir = "GDCdata",
+                              manifest_only = FALSE){
+  query <- tcga_download(project = project,
+                         data.category = "Proteome Profiling",
+                         data.type = "Protein Expression Quantification",
+                         data.format = "tsv",
+                         manifest = manifest,
+                         manifest_only = manifest_only,
+                         download_dir = download_dir
+  )
+  invisible(query)
+}
+
+#' Download TCGA somatic mutation (SNP) data
+#'
+#' This function downloads masked somatic mutation data (SNP) from TCGA using a manifest file.
+#' Only open-access MAF files are supported.
+#'
+#' @param project TCGA project ID (e.g., "TCGA-CHOL").
+#' @param manifest A file path of the manifest file used for download.
+#' @param download_dir Directory where the downloaded files will be stored. Default is "GDCdata".
+#' @param manifest_only Logical. If TRUE, only generates the manifest file without downloading data. Default is FALSE.
+#'
+#' @return Returns invisibly the query object created by `tcga_download()`.
+#' @export
+tcga_download_snp <- function(project,
+                              manifest,
+                              download_dir = "GDCdata",
+                              manifest_only = FALSE){
+  query <- tcga_download(project = project,
+                         data.category = "Simple Nucleotide Variation",
+                         data.type = "Masked Somatic Mutation", # 只有该类型的开放,
+                         # "Masked Somatic Mutation", "Aggregated Somatic Mutation", "Annotated Somatic Mutation",
+                         # "Raw Simple Somatic Mutation","Simple Germline Variation"
+                         data.format = "maf", # maf, vcf, tsv # 都是一个结果
+                         manifest = manifest,
+                         manifest_only = manifest_only,
+                         download_dir = download_dir,
+                         access = "open"
+  )
+  invisible(query)
+}
+
+
+# query1 <- tcga_download(project = "TCGA-CHOL",
+#                        data.category = "Simple Nucleotide Variation",
+#                        data.type = "Masked Somatic Mutation", # 只有该类型的开放
+#                        # "Masked Somatic Mutation", "Aggregated Somatic Mutation", "Annotated Somatic Mutation",
+#                        # "Raw Simple Somatic Mutation","Simple Germline Variation"
+#                        data.format = "maf", # maf, vcf, tsv # 都是一个结果
+#                        access = "open"
+# )
+
+# df1 <- TCGAbiolinks::GDCprepare(query1, directory = "GDCdata", summarizedExperiment = FALSE)
+
+# query2 <- tcga_download(project = "TCGA-CHOL",
+#                         data.category = "Simple Nucleotide Variation", # 不让下
+#                         data.type = "Annotated Somatic Mutation",
+#                         # "Masked Somatic Mutation", "Aggregated Somatic Mutation", "Annotated Somatic Mutation",
+#                         # "Raw Simple Somatic Mutation","Simple Germline Variation"
+#                         data.format = "vcf", # maf, vcf, tsv
+#                         access = "open"
+# )
+#
+# df2 <- TCGAbiolinks::GDCprepare(query2, directory = "GDCdata", summarizedExperiment = FALSE)
 
 

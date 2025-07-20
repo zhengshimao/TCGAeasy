@@ -20,24 +20,34 @@ knitr:
 ```{r}
 #| label: setup
 library(TCGAeasy)
-tcga_download_clinic("TCGA-LGG")
-query <- tcga_download_clinic("TCGA-LGG")
-xfiles <- list.files("GDCdata/TCGA-LGG/Clinical/", pattern = "xml", recursive = TRUE, full.names = T)
+library(stringr)
+tcga_download_clinic("TCGA-CHOL")
+query <- tcga_download_clinic("TCGA-CHOL")
+xfiles <- list.files("GDCdata/TCGA-CHOL/Clinical/", pattern = "xml", recursive = TRUE, full.names = T)
 clin_patient <- tcga_xml2df(xfiles = xfiles, element = "patient", verbose = FALSE)
 print(clin_patient)
 collectGarbage()
 ```
 
-## 下载RNA seq 表达文件
+## 下载mRNA seq 表达文件
 
 - 下载转录组定量文件时，如果给予赋值，将会返回 `query` 值。注意及时回收内存。
 
 ```{r}
-tcga_download_rna_seq_exp(project = "TCGA-LGG")
-query <- tcga_download_rna_seq_exp(project = "TCGA-LGG")
-print(query)
+tcga_download_mrna_seq_exp(project = "TCGA-CHOL")
+query <- tcga_download_mrna_seq_exp(project = "TCGA-CHOL")
 collectGarbage()
+print(query)
 ```
+
+获取全部表达信息
+
+```{r}
+exp <- TCGAbiolinks::GDCprepare(query, directory = "GDCdata", summarizedExperiment = FALSE)
+colnames(exp) %>% str_remove("_TCGA-.*") %>% unique()
+exp
+```
+
 
 获取Count矩阵
 
@@ -48,11 +58,30 @@ collectGarbage()
 果中表达量均为0.
 
 ```{r}
-count <- get_tcga_count("TCGA-LGG", clean = F)
+count <- get_tcga_mrna_count("TCGA-CHOL", clean = F)
 clean_count <- clean_exp(df = count)
+clean_count2 <- clean_exp(df = count, exclude_cols = c("gene_name", "gene_type"),
+                          row_name = NULL,
+                          ensembl_id = "gene_id",
+                          remove_ensembl_id_version = T
+                          )
 
-clean_count <- get_tcga_count("TCGA-LGG", clean = TRUE)
-print(clean_count)
+clean_count <- get_tcga_mrna_count("TCGA-CHOL", clean = TRUE)
+collectGarbage()
+clean_count
+clean_count2
+```
+
+获取和FPKM矩阵
+
+- 这里也包含下载功能，如果文件不存在，会自动下载。如果有结果，则会自动跳过。
+
+```{r}
+fpkm <- get_tcga_mrna_fpkm("TCGA-CHOL", clean = F)
+clean_fpkm <- clean_exp(df = fpkm)
+
+clean_fpkm <- get_tcga_mrna_count("TCGA-CHOL", clean = TRUE)
+print(clean_fpkm)
 collectGarbage()
 ```
 
@@ -61,12 +90,124 @@ collectGarbage()
 - 这里也包含下载功能，如果文件不存在，会自动下载。如果有结果，则会自动跳过。
 
 ```{r}
-tpm <- get_tcga_tpm("TCGA-LGG", clean = F)
+tpm <- get_tcga_mrna_tpm("TCGA-CHOL", clean = F)
 clean_tpm <- clean_exp(df = tpm)
 
-clean_tpm <- get_tcga_count("TCGA-LGG", clean = TRUE)
+clean_tpm <- get_tcga_mrna_count("TCGA-CHOL", clean = TRUE)
 print(clean_tpm)
 collectGarbage()
+```
+
+## 下载miRNA seq 表达文件
+
+下载miRNA表达文件
+
+```{r}
+tcga_download_mirna_seq_exp(project = "TCGA-CHOL")
+query <- tcga_download_mirna_seq_exp(project = "TCGA-CHOL")
+collectGarbage()
+query
+```
+
+
+读入全部表达内容
+
+```{r}
+# query <- tcga_download(project = "TCGA-CHOL",
+#                        data.category = "Transcriptome Profiling",
+#                        data.type = "miRNA Expression Quantification",
+#                        data.format = "txt",
+#                        workflow.type = "BCGSC miRNA Profiling",
+#                        # manifest,
+#                        manifest_only = FALSE,
+#                        download_dir = "GDCdata")
+
+
+exp <- TCGAbiolinks::GDCprepare(query, directory = "GDCdata", summarizedExperiment = FALSE)
+colnames(exp) %>% str_remove("_TCGA-.*") %>% unique()
+exp
+```
+
+获取miRNA Count矩阵
+
+```{r}
+count <- get_tcga_mirna_count("TCGA-CHOL")
+clean_count <- count %>% tibble::column_to_rownames(var = "miRNA_ID")
+
+collectGarbage()
+clean_count
+```
+
+获取miRNA RPM矩阵
+
+```{r}
+rpm <- get_tcga_mirna_rpm("TCGA-CHOL")
+clean_rpm <- rpm %>% tibble::column_to_rownames(var = "miRNA_ID")
+
+collectGarbage()
+clean_rpm
+```
+
+
+## 甲基化数据下载
+
+甲基化β值下载与读取
+
+```{r}
+query <- tcga_download_methy_beta(project = "TCGA-CHOL", platform = "Illumina Human Methylation 450")
+beta <- TCGAbiolinks::GDCprepare(query, summarizedExperiment = FALSE)
+```
+
+## CNV 数据下载
+
+CNV数据下载
+
+```{r}
+query1 <- tcga_download_cnv(project = "TCGA-CHOL",
+                            data.type = "Copy Number Segment",
+                            workflow.type = "DNAcopy"
+                            )
+query1_df <- TCGAbiolinks::GDCprepare(query1, directory = "GDCdata", summarizedExperiment = FALSE)
+
+```
+
+```{r}
+
+query2 <- tcga_download_cnv(project = "TCGA-CHOL",
+                            data.type = "Copy Number Segment",
+                            workflow.type = "GATK4 CNV"
+                            )
+query2_df <- TCGAbiolinks::GDCprepare(query2, directory = "GDCdata", summarizedExperiment = FALSE)
+
+```
+
+```{r}
+query3 <- tcga_download_cnv(project = "TCGA-CHOL",
+                            data.type = "Masked Copy Number Segment",
+                            workflow.type = "DNAcopy"
+                            )
+query3_df <- TCGAbiolinks::GDCprepare(query3, directory = "GDCdata", summarizedExperiment = FALSE)
+```
+
+## 蛋白数据
+
+蛋白表达数据读取
+
+```{r}
+
+query <- tcga_download_cnv(project = "TCGA-CHOL")
+prot <- TCGAbiolinks::GDCprepare(query, directory = "GDCdata", summarizedExperiment = FALSE)
+```
+
+## SNP数据
+
+下载SNP数据。
+
+- 仅允许下在 **"Masked Somatic Mutation"** 类型的数据。
+
+```{r}
+query <- tcga_download_snp(project = "TCGA-CHOL")
+snp <- TCGAbiolinks::GDCprepare(query, directory = "GDCdata", summarizedExperiment = FALSE)
 ```
 
 
