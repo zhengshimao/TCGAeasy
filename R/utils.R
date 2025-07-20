@@ -102,6 +102,7 @@ collectGarbage <- function(){
 #'
 #' @return A logical value. TRUE if the string looks like a number, FALSE otherwise.
 #'
+#' @export
 #' @examples
 #' is_numeric_str("123")      # TRUE
 #' is_numeric_str("-45.6")    # TRUE

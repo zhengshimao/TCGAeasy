@@ -25,6 +25,8 @@ tcga_download(
 
 \item{data.format}{The file format, e.g., \code{"BCR XML"}.}
 
+\item{workflow.type}{GDC workflow type.}
+
 \item{query_rds}{save query to RDS.}
 
 \item{manifest}{(Optional) A path to save a manifest file. If missing, it will be generated.}

@@ -13,6 +13,8 @@ usethis::use_package("TCGAbiolinks",min_version = "2.24.3")
 usethis::use_package("xml2")
 usethis::use_package("dplyr")
 usethis::use_package("readr")
+usethis::use_package("tibble")
+usethis::use_package("tidyselect")
 usethis::use_package("stringr",type = "Suggests")
 # usethis::use_package("tibble")
 
@@ -23,7 +25,7 @@ usethis::use_package("stringr",type = "Suggests")
 devtools::document()
 
 # 检查
-devtools::check()
+devtools::check(vignettes = FALSE) # 不检查bignettes
 
 # build R包 # "G:/my_github/TCGAeasy_0.0.0.9000.tar.gz"
 devtools::build()

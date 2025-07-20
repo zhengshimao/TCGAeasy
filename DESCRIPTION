@@ -16,6 +16,8 @@ Imports:
     magrittr,
     readr,
     TCGAbiolinks (>= 2.24.3),
+    tibble,
+    tidyselect,
     xml2
 LazyDataL: true
 Suggests: 

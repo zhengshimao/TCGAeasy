@@ -41,6 +41,7 @@ get_manifest <- function (query, manifest, download_dir = "GDCdata"){
 #' @param data.category The data category, e.g., `"Clinical"`.
 #' @param data.type The data type, e.g., `"Clinical Supplement"`.
 #' @param data.format The file format, e.g., `"BCR XML"`.
+#' @param workflow.type GDC workflow type.
 #' @param query_rds save query to RDS.
 #' @param manifest (Optional) A path to save a manifest file. If missing, it will be generated.
 #' @param manifest_only Logical; if `TRUE`, only the manifest file will be generated without downloading data.
@@ -165,19 +166,46 @@ tcga_download_rna_seq_exp <- function(project,
   invisible(query)
 }
 
-#' Clean raw expression matrix
+#' Clean expression matrix from raw gene expression data
 #'
-#' This function removes unwanted gene rows from a raw expression count or TPM matrix,
-#' including pseudo-autosomal region genes and ambiguous counts.
+#' This function removes unwanted rows and columns from a gene expression dataframe,
+#' and optionally removes Ensembl version suffixes and sets row names.
 #'
-#' @param df Data frame. A data frame containing a `gene_id` column.
+#' @param df A data.frame or tibble containing gene expression data.
+#' @param exclude_cols A character vector of column names to remove from `df`. Defaults to \code{c("gene_name", "gene_type")}.
+#' @param row_name The column name to be used as row names. Default is \code{"gene_id"}.
+#' @param remove_ensembl_id_version Logical. Whether to remove Ensembl version numbers (e.g., ".1") from gene IDs. Default is \code{TRUE}.
+#' @param ensembl_id The column name containing Ensembl IDs. Defaults to the value of `row_name`.
 #'
-#' @return A cleaned data frame with certain rows removed.
+#' @return A cleaned data.frame with gene IDs as row names, filtered rows and optional columns removed.
 #' @export
 
-clean_exp <- function(df){
+clean_exp <- function(df,
+                      exclude_cols = c("gene_name","gene_type"),
+                      row_name = "gene_id",
+                      remove_ensembl_id_version = TRUE,
+                      ensembl_id = row_name
+                      ){
   df <- df[!stringr::str_detect(df[["gene_id"]], "_PAR_Y$"),]
-  df <- df %>% dplyr::filter(! .[["gene_id"]] %in% c("N_ambiguous","N_multimapping","N_noFeature","N_unmapped"))
+  df <- df %>% dplyr::filter(! .[["gene_id"]] %in% c("N_ambiguous",
+                                                     "N_multimapping",
+                                                     "N_noFeature",
+                                                     "N_unmapped"))
+  if(!is.null(exclude_cols)){
+    exclude_cols <- exclude_cols[exclude_cols %in% colnames(df)]
+    if(length(exclude_cols) > 0){
+      df <- df %>% dplyr::select(-dplyr::all_of(exclude_cols))
+    }
+  }
+
+  if(remove_ensembl_id_version){
+    df[[ensembl_id]] <- df[[ensembl_id]] %>% stringr::str_remove("\\.\\d+")
+  }
+
+  if(!is.null(row_name)){
+    df <- df %>% tibble::column_to_rownames(var = row_name)
+  }
+
   return(df)
 }
 

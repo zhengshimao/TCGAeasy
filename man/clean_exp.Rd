@@ -2,17 +2,31 @@
 % Please edit documentation in R/TCGA_download.R
 \name{clean_exp}
 \alias{clean_exp}
-\title{Clean raw expression matrix}
+\title{Clean expression matrix from raw gene expression data}
 \usage{
-clean_exp(df)
+clean_exp(
+  df,
+  exclude_cols = c("gene_name", "gene_type"),
+  row_name = "gene_id",
+  remove_ensembl_id_version = TRUE,
+  ensembl_id = row_name
+)
 }
 \arguments{
-\item{df}{Data frame. A data frame containing a \code{gene_id} column.}
+\item{df}{A data.frame or tibble containing gene expression data.}
+
+\item{exclude_cols}{A character vector of column names to remove from \code{df}. Defaults to \code{c("gene_name", "gene_type")}.}
+
+\item{row_name}{The column name to be used as row names. Default is \code{"gene_id"}.}
+
+\item{remove_ensembl_id_version}{Logical. Whether to remove Ensembl version numbers (e.g., ".1") from gene IDs. Default is \code{TRUE}.}
+
+\item{ensembl_id}{The column name containing Ensembl IDs. Defaults to the value of \code{row_name}.}
 }
 \value{
-A cleaned data frame with certain rows removed.
+A cleaned data.frame with gene IDs as row names, filtered rows and optional columns removed.
 }
 \description{
-This function removes unwanted gene rows from a raw expression count or TPM matrix,
-including pseudo-autosomal region genes and ambiguous counts.
+This function removes unwanted rows and columns from a gene expression dataframe,
+and optionally removes Ensembl version suffixes and sets row names.
 }
